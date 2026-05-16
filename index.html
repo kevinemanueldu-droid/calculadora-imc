@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -192,6 +192,102 @@
             color: #ef5350;
             border-left-color: #c41e3a;
         }
+
+        .history-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #333333;
+        }
+
+        .history-title {
+            color: #c41e3a;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .history-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid #c41e3a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-info {
+            text-align: left;
+            flex: 1;
+        }
+
+        .history-item p {
+            color: #ffffff;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .history-imc {
+            color: #c41e3a;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .history-date {
+            color: #999999;
+            font-size: 12px;
+        }
+
+        .delete-history {
+            background: #c41e3a;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            margin-left: 10px;
+            flex: 0;
+        }
+
+        .delete-history:hover {
+            background: #8b0000;
+        }
+
+        #clearAllButton {
+            width: 100%;
+            background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        #clearAllButton:hover {
+            background: linear-gradient(135deg, #a01830 0%, #6b0000 100%);
+        }
+
+        .empty-history {
+            text-align: center;
+            color: #999999;
+            padding: 20px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -216,6 +312,14 @@
         </form>
 
         <div id="result" class="result"></div>
+
+        <div class="history-section">
+            <div class="history-title">Histórico de Cálculos</div>
+            <div class="history-list" id="historyList">
+                <div class="empty-history">Nenhum cálculo realizado ainda</div>
+            </div>
+            <button id="clearAllButton">Limpar Histórico</button>
+        </div>
     </div>
 
     <script>
@@ -224,6 +328,10 @@
         const weightInput = document.getElementById('weight');
         const resultDiv = document.getElementById('result');
         const resetButton = document.getElementById('resetButton');
+        const historyList = document.getElementById('historyList');
+        const clearAllButton = document.getElementById('clearAllButton');
+
+        const STORAGE_KEY = 'imc_history';
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -240,6 +348,7 @@
             const category = getCategory(bmi);
 
             displayResult(bmi, category);
+            saveToHistory(bmi, category, parseFloat(heightInput.value), weight);
         });
 
         resetButton.addEventListener('click', function() {
@@ -247,6 +356,13 @@
             resultDiv.classList.remove('show');
             resultDiv.innerHTML = '';
             heightInput.focus();
+        });
+
+        clearAllButton.addEventListener('click', function() {
+            if (confirm('Tem certeza que deseja limpar todo o histórico?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                loadHistory();
+            }
         });
 
         function getCategory(bmi) {
@@ -268,6 +384,57 @@
             resultDiv.innerHTML = `<p>${message}</p>`;
             resultDiv.className = 'result show error';
         }
+
+        function saveToHistory(bmi, category, height, weight) {
+            let history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            
+            const entry = {
+                id: Date.now(),
+                bmi: bmi.toFixed(2),
+                category: category.name,
+                height: height,
+                weight: weight,
+                date: new Date().toLocaleString('pt-BR')
+            };
+
+            history.unshift(entry);
+            
+            if (history.length > 10) {
+                history.pop();
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+            loadHistory();
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="empty-history">Nenhum cálculo realizado ainda</div>';
+                return;
+            }
+
+            historyList.innerHTML = history.map(entry => `
+                <div class="history-item">
+                    <div class="history-info">
+                        <p class="history-imc">IMC: ${entry.bmi}</p>
+                        <p>${entry.height}cm | ${entry.weight}kg | ${entry.category}</p>
+                        <p class="history-date">${entry.date}</p>
+                    </div>
+                    <button class="delete-history" onclick="deleteHistoryEntry(${entry.id})">Deletar</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteHistoryEntry(id) {
+            let history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            history = history.filter(entry => entry.id !== id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+            loadHistory();
+        }
+
+        loadHistory();
     </script>
 </body>
 </html>
