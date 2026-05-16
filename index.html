@@ -1,0 +1,273 @@
+<<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de IMC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #1a1a1a;
+            padding: 50px;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            width: 100%;
+            max-width: 450px;
+            border-top: 5px solid #c41e3a;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 35px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #333333;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #2d2d2d;
+            color: #ffffff;
+        }
+
+        input::placeholder {
+            color: #999999;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #c41e3a;
+            background: #333333;
+            box-shadow: 0 0 0 3px rgba(196, 30, 58, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #calcButton {
+            background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(196, 30, 58, 0.3);
+        }
+
+        #calcButton:hover {
+            background: linear-gradient(135deg, #a01830 0%, #6b0000 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(196, 30, 58, 0.4);
+        }
+
+        #calcButton:active {
+            transform: translateY(0);
+        }
+
+        #resetButton {
+            background: linear-gradient(135deg, #555555 0%, #333333 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #resetButton:hover {
+            background: linear-gradient(135deg, #666666 0%, #444444 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        #resetButton:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 35px;
+            padding: 25px;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+            border-left: 5px solid #c41e3a;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h2 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .result p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .underweight {
+            background-color: #1e3a52;
+            color: #64b5f6;
+            border-left-color: #01579b;
+        }
+
+        .normal {
+            background-color: #1b4620;
+            color: #81c784;
+            border-left-color: #1b5e20;
+        }
+
+        .overweight {
+            background-color: #523a1a;
+            color: #ffb74d;
+            border-left-color: #e65100;
+        }
+
+        .obese {
+            background-color: #521b1b;
+            color: #ef5350;
+            border-left-color: #c41e3a;
+        }
+
+        .error {
+            background-color: #521b1b;
+            color: #ef5350;
+            border-left-color: #c41e3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de IMC</h1>
+        
+        <form id="imcForm">
+            <div class="form-group">
+                <label for="height">Altura (cm):</label>
+                <input type="number" id="height" placeholder="Ex: 170" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="weight">Peso (kg):</label>
+                <input type="number" id="weight" placeholder="Ex: 75" step="0.1" required>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" id="calcButton">Calcular IMC</button>
+                <button type="button" id="resetButton">Reiniciar</button>
+            </div>
+        </form>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('imcForm');
+        const heightInput = document.getElementById('height');
+        const weightInput = document.getElementById('weight');
+        const resultDiv = document.getElementById('result');
+        const resetButton = document.getElementById('resetButton');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const height = parseFloat(heightInput.value) / 100;
+            const weight = parseFloat(weightInput.value);
+
+            if (height <= 0 || weight <= 0) {
+                showError('Por favor, insira valores válidos maiores que zero.');
+                return;
+            }
+
+            const bmi = weight / (height * height);
+            const category = getCategory(bmi);
+
+            displayResult(bmi, category);
+        });
+
+        resetButton.addEventListener('click', function() {
+            form.reset();
+            resultDiv.classList.remove('show');
+            resultDiv.innerHTML = '';
+            heightInput.focus();
+        });
+
+        function getCategory(bmi) {
+            if (bmi < 18.5) return { name: 'Abaixo do peso', class: 'underweight' };
+            if (bmi < 25) return { name: 'Peso normal', class: 'normal' };
+            if (bmi < 30) return { name: 'Sobrepeso', class: 'overweight' };
+            return { name: 'Obesidade', class: 'obese' };
+        }
+
+        function displayResult(bmi, category) {
+            resultDiv.innerHTML = `
+                <h2>Seu IMC: ${bmi.toFixed(2)}</h2>
+                <p><strong>${category.name}</strong></p>
+            `;
+            resultDiv.className = `result show ${category.class}`;
+        }
+
+        function showError(message) {
+            resultDiv.innerHTML = `<p>${message}</p>`;
+            resultDiv.className = 'result show error';
+        }
+    </script>
+</body>
+</html>
